@@ -25,29 +25,28 @@ services:
       - POSTGRES_PASSWORD=postgrespassword
       - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - ./boot-otel-tempo-provider1/db/data:/var/lib/postgresql
       - ./boot-otel-tempo-provider1/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  pgadmin:
-    image: dpage/pgadmin4
+  pgweb:
+    image: sosedoff/pgweb:latest
     ports:
-      - 7070:80
+      - "8081:8081"
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
+      DATABASE_URL: postgres://postgres:postgrespassword@provider1-db:5432/provider1?sslmode=disable
     depends_on:
       - provider1-db
 
   tempo:
     image: grafana/tempo:0.7.0
-    command: ["-config.file=/etc/tempo.yaml"]
+    command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./etc/tempo-local.yaml:/etc/tempo.yaml
       - ./data/tempo-data:/tmp/tempo
-    restart: unless-stopped  
+    restart: unless-stopped
     ports:
       - "14268:14268"  # jaeger ingest, Jaeger - Thrift HTTP
       - "14250:14250"  # Jaeger - GRPC
@@ -56,7 +55,7 @@ services:
 
   tempo-query:
     image: grafana/tempo-query:0.7.0
-    command: ["--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml"]
+    command: [ "--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml" ]
     volumes:
       - ./etc/tempo-query.yaml:/etc/tempo-query.yaml
     ports:
@@ -101,13 +100,13 @@ services:
 
   volume_exporter:
     image: mnadeem/volume_exporter
-    command: ["--volume-dir=tempo:/tmp/tempo", "--volume-dir=logs:/app/logs", "--volume-dir=loki:/tmp/loki"]
+    command: [ "--volume-dir=tempo:/tmp/tempo", "--volume-dir=logs:/app/logs", "--volume-dir=loki:/tmp/loki" ]
     volumes:
       - ./data/logs:/app/logs
       - ./data/tempo-data:/tmp/tempo
       - ./data/loki-data:/tmp/loki
     ports:
-      - 9889:9888
+      - "9889:9888"
 
   prometheus:
     image: prom/prometheus:latest

@@ -1,60 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
 	<parent>
 		<groupId>io.opentelemetry.example</groupId>
 		<artifactId>boot-opentelemetry-tempo</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
-	<artifactId>boot-otel-tempo-docker</artifactId>
 
+	<artifactId>boot-otel-tempo-docker</artifactId>
 	<name>boot-otel-tempo-docker</name>
 	<description>boot-otel-tempo-docker</description>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
 	<build>
 		<plugins>
 			<plugin>
-			    <groupId>io.fabric8</groupId>
-			    <artifactId>docker-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerArgs>
+						<arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>io.opentelemetry.example.Dummy</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
-		             <execution>
-		                 <id>start</id>
-		                 <phase>pre-integration-test</phase>
-		                 <goals>
-		                     <goal>build</goal>
-		                     <goal>start</goal>
-		                 </goals>
-		             </execution>
-		             <execution>
-		                 <id>stop</id>
-		                 <phase>post-integration-test</phase>
-		                 <goals>
-		                     <goal>stop</goal>
-		                 </goals>
-		             </execution>
-		         </executions>
-			     <configuration>
-			        <images>
-			            <image>	
-			            	<name>mnadeem/${project.artifactId}</name>		
-			                <build>
-			                    <dockerFile>${project.basedir}/Dockerfile</dockerFile>
-			                    <tags>
-							      	<tag>${project.version}</tag>
-                                	<tag>latest</tag>
-							    </tags>
-			                </build>
-			            </image>			
-			        </images>		        
-			     </configuration>
-			</plugin>			
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>io.opentelemetry.javaagent</groupId>
+							<artifactId>opentelemetry-javaagent</artifactId>
+							<type>jar</type>
+							<overWrite>true</overWrite>
+							<destFileName>opentelemetry-javaagent.jar</destFileName>
+						</artifactItem>
+					</artifactItems>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+					<overWriteReleases>true</overWriteReleases>
+					<overWriteSnapshots>true</overWriteSnapshots>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>build</goal>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<images>
+						<image>
+							<name>mnadeem/${project.artifactId}</name>
+							<build>
+								<dockerFile>${project.basedir}/Dockerfile</dockerFile>
+								<tags>
+									<tag>${project.version}</tag>
+									<tag>latest</tag>
+								</tags>
+							</build>
+						</image>
+					</images>
+				</configuration>
+			</plugin>
 		</plugins>
-		
 	</build>
-	
+
 </project>

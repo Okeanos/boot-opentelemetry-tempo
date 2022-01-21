@@ -56,7 +56,7 @@ docker stack services trace
 docker stack rm trace
 ````
 
-# Variations 
+# Variations
 
 There are two variations **basic** and **complex**, both version have support for `0.15.0`, `0.16.0` and `0.17.0` in its own branches.
 
@@ -103,14 +103,9 @@ You can view it in [Grafana](http://localhost:3000/explore?orgId=1&left=%5B%22no
 
 # Connecting To PostgreSQL DB
 
-[Connect](http://localhost:7070/login?next=%2F)
+[Connect](http://localhost:8081/)
 
-![](docs/img/pgAdminlogin.png)
-
-![](docs/img/pgAdmingServer.png)
-
-![](docs/img/pgAdminDb.png)
-
+![](docs/img/pgweb.png)
 
 # Credits
 
